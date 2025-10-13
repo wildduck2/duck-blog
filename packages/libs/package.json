@@ -1,0 +1,31 @@
+{
+  "devDependencies": {
+    "@acme/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.3.1",
+    "tsdown": "catalog:",
+    "zod": "catalog:"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "exports": {
+    ".": "./index.ts",
+    "./*": "./*/index.ts"
+  },
+  "name": "@acme/libs",
+  "packageManager": "pnpm@10.13.1",
+  "private": true,
+  "scripts": {
+    "build": "tsdown",
+    "ci": "pnpm run lint && pnpm run format && pnpm run build",
+    "clean": "git clean -xdf .cache .turbo node_modules dist",
+    "format": "biome format --write ./",
+    "lint": "biome lint --write ./",
+    "publish": "pnpm run ci && changeset publish",
+    "release": "changeset version"
+  },
+  "type": "module",
+  "version": "0.1.0"
+}

@@ -1,0 +1,42 @@
+{
+  "devDependencies": {
+    "@acme/tsdown-config": "workspace:*",
+    "@acme/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:react19",
+    "@types/react-dom": "catalog:react19",
+    "clsx": "^2.1.1",
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19",
+    "tailwind-merge": "^3.3.1",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "zod": "catalog:"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*/index.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "module": "./dist/index.js",
+  "name": "@acme/hooks",
+  "packageManager": "pnpm@10.13.1",
+  "private": true,
+  "scripts": {
+    "build": "tsdown",
+    "ci": "pnpm run lint && pnpm run format && pnpm run build",
+    "clean": "git clean -xdf .cache .turbo node_modules dist",
+    "format": "biome format --write ./",
+    "lint": "biome lint --write ./",
+    "publish": "pnpm run ci && changeset publish",
+    "release": "changeset version"
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "version": "0.1.0"
+}

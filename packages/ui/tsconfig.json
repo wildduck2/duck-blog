@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "baseUrl": ".",
+    "incremental": false,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "dom", "dom.iterable"],
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "outDir": "./dist",
+    "paths": {
+      "~/*": ["./*"]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "rootDir": "./"
+  },
+  "exclude": ["node_modules", "dist"],
+  "extends": "@gentleduck/typescript-config/base.json",
+  "include": ["./**/*.ts", "./**/*.tsx"]
+}

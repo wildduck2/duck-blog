@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "jsx": "preserve",
+    "lib": ["ES2022", "dom", "dom.iterable"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "paths": {
+      "~/*": ["./*"],
+      "~/old-registry-ui": ["../_oldstuff_refactor/ui/*"],
+      "~/velite": ["./.velite/*"]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "types": ["@types/react", "node"]
+  },
+  "exclude": ["node_modules", "dist"],
+  "extends": "@acme/typescript-config/base.json",
+  "include": [
+    "node_modules",
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".velite",
+    "../../packages/_oldstuff_refactor/ui"
+  ]
+}

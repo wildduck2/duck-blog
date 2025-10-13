@@ -1,0 +1,19 @@
+import { ZodMessages } from '~/common/constants'
+
+export const SERVICES_MESSAGES = [
+  // Success messages
+  'SERVICES_GET_ALL_SUCCESS',
+  'SERVICES_GET_ONE_SUCCESS',
+  'SERVICES_CREATE_SUCCESS',
+  'SERVICES_UPDATE_SUCCESS',
+  'SERVICES_DELETE_SUCCESS',
+
+  //Error messages
+  'SERVICES_GET_ALL_FAILED',
+  'SERVICES_GET_ONE_FAILED',
+  'SERVICES_CREATE_FAILED',
+  'SERVICES_UPDATE_FAILED',
+  'SERVICES_DELETE_FAILED',
+
+  ...ZodMessages,
+] as const

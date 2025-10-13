@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+@source "../node_modules/@acme/ui";
+@plugin "tailwindcss-animate";
+@import "@acme/tailwind-config/web.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: "Adjusted Lucida Sans Typewriter Fallback";
+  src: local("Lucida Sans Typewriter");
+  size-adjust: 119%;
+  ascent-override: 86%;
+  descent-override: 16%;
+  line-gap-override: 30%;
+}
+
+@font-face {
+  font-family: "Adjusted Arial Fallback";
+  src: local("Arial");
+  size-adjust: 99%;
+  ascent-override: 101%;
+  descent-override: 26%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Geist";
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/Geist-VF.woff2) format("woff2");
+}
+
+@font-face {
+  font-family: "Mono";
+  font-weight: 500;
+  font-display: fallback;
+  src: url(/fonts/JetBrainsMono-MD.woff2) format("woff2");
+}
+
+:root {
+  --font-sans: "Geist", "Adjusted Arial Fallback";
+  --font-mono: "JetBrains Mono", monospace, "Adjusted Lucida Sans Typewriter Fallback";
+}
+
+@layer base {
+  * {
+    @apply border-border font-medium;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  .font-sans {
+    font-family: var(--font-sans-geist) !important;
+  }
+
+  .font-mono {
+    font-family: var(--font-mono-geist) !important;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 5px;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  @supports (font: -apple-system-body) and (-webkit-appearance: none) {
+    [data-wrapper] {
+      @apply min-[1800px]:border-t;
+    }
+  }
+
+  image {
+    user-select: none;
+  }
+
+  a:active,
+  button:active {
+    @apply opacity-60 md:opacity-100;
+  }
+}
+
+@utility duck-truncate {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+@layer utilities {
+  .container {
+    @apply 3xl:max-w-screen-2xl mx-auto max-w-[1400px] px-4 lg:px-8;
+  }
+}

@@ -1,0 +1,33 @@
+packages:
+  - apps/*
+  - packages/*
+  - tooling/*
+
+catalog:
+  vite: npm:rolldown-vite@latest
+  vitest: ^3.2.4
+  tsdown: 0.11.13
+  tsx: ^4.20.3
+  typescript: ^5.9.2
+  husky: ^9.1.7
+  "@vitest/ui": ^3.2.4
+  "@vitest/coverage-v8": ^3.2.4
+  "@types/node": ^22.16.3
+  "@vitejs/plugin-react-swc": ^3.10.2
+  vite-tsconfig-paths: ^5.1.4
+  "@changesets/cli": ^2.29.5
+  vite-bundle-analyzer: ^0.20.2
+  vite-plugin-inspect: ^11.3.0
+  next: ^15.3.5
+  tailwindcss: ^4.1.11
+  "@tanstack/react-query": ^5.83.0
+  zod: ^3.25.76
+  lucide-react: 0.525.0
+  react-day-picker: ^9.8.1
+
+catalogs:
+  react19:
+    react: ^19.0.0
+    react-dom: ^19.0.0
+    "@types/react": ^19
+    "@types/react-dom": ^19
