@@ -58,3 +58,4 @@ certificates
 
 tailwind.config.ts
 **/.fuse_*
+**/target/**
