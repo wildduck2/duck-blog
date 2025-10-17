@@ -1,6 +1,6 @@
 {
-  "id": "8119b34a-c9ef-481d-b5ea-f58a3720127e",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "6dad9495-6d23-4304-b675-53071fd9f018",
+  "prevId": "8119b34a-c9ef-481d-b5ea-f58a3720127e",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -313,6 +313,12 @@
           "primaryKey": true,
           "notNull": true,
           "default": "gen_random_uuid()"
+        },
+        "literal": {
+          "name": "literal",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
         },
         "updated_at": {
           "name": "updated_at",

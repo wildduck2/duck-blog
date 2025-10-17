@@ -1,0 +1,1 @@
+ALTER TABLE "words" ADD COLUMN "literal" varchar(255) NOT NULL;
