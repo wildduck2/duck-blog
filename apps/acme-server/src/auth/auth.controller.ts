@@ -41,9 +41,6 @@ export class AuthController {
   ): Promise<ResponseType<typeof this.authService.signin, AuthMessageType>> {
     const data = await this.authService.signin(body)
     session.user = data as never
-    // session = { ...session, user: data! }
-
-    console.log(body)
 
     return {
       data,

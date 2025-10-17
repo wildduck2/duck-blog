@@ -7,19 +7,25 @@ use actix_web::{
   web, App, HttpServer,
 };
 use dotenv::dotenv;
+use lettre::SmtpTransport;
 
 use actix_identity::IdentityMiddleware;
 use actix_session::config::PersistentSession;
 use actix_session::{storage::RedisSessionStore, SessionMiddleware};
 
+use crate::email::connect_to_smtp;
+
 mod auth;
 mod common;
+mod email;
 mod redis;
 mod sqlx;
+mod user;
 
 struct AppState {
   db: PgPool,
   redis: RedisSessionStore,
+  mailer: SmtpTransport,
 }
 
 #[actix_web::main]
@@ -27,6 +33,8 @@ async fn main() -> std::io::Result<()> {
   dotenv().ok();
 
   let secret_key = Key::generate();
+  // Connect to the SMTP service
+  let mailer = connect_to_smtp().await;
   // Connect to the database
   let pool = sqlx::connect_sqlx().await;
   // Create a Redis client
@@ -53,9 +61,10 @@ async fn main() -> std::io::Result<()> {
       .app_data(web::Data::new(AppState {
         db: pool.clone(),
         redis: redis_client.clone(),
+        mailer: mailer.clone(),
       }))
       .configure(auth::config)
-      .service(auth::singin)
+      .configure(user::config)
   })
   .bind(("127.0.0.1", address))?
   .run()
