@@ -1,6 +1,0 @@
-export * from './services.constants'
-export * from './services.controller'
-export * from './services.dto'
-export * from './services.module'
-export * from './services.service'
-export * from './services.types'

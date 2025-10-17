@@ -1,6 +1,0 @@
-{
-  "exec": "node -r @swc-node/register src/main.ts",
-  "ext": "ts,tsx,json",
-  "ignore": ["**/*.test.ts", "dist"],
-  "watch": ["src"]
-}
