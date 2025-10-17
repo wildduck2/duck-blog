@@ -32,7 +32,8 @@ struct AppState {
 async fn main() -> std::io::Result<()> {
   dotenv().ok();
 
-  let secret_key = Key::generate();
+  let secret_key = get_session_key();
+
   // Connect to the SMTP service
   let mailer = connect_to_smtp().await;
   // Connect to the database
@@ -54,6 +55,8 @@ async fn main() -> std::io::Result<()> {
         // Add the session middleware to the service
         SessionMiddleware::builder(redis_client.clone(), secret_key.clone())
           // Set the session cookie to expire in 7 days
+          .cookie_name("acme-session".to_string())
+          // .cookie_http_only(true)
           .session_lifecycle(PersistentSession::default().session_ttl(Duration::days(7)))
           .build(),
       )
@@ -70,4 +73,10 @@ async fn main() -> std::io::Result<()> {
   .bind(("127.0.0.1", address))?
   .run()
   .await
+}
+
+fn get_session_key() -> Key {
+  let secret = env::var("SESSION_SECRET").expect("SESSION_SECRET must be set");
+  let decoded = base64::decode(&secret).expect("Invalid base64 in SESSION_SECRET");
+  Key::from(&decoded)
 }

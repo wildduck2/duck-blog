@@ -38,6 +38,5 @@ async fn singin(
 #[post("/signout")]
 pub async fn signout(session: Session) -> impl Responder {
   session.purge();
-  // Err(e) => api_error::<Auth, AuthMessage>(StatusCode::BAD_REQUEST, e),
   api_success::<(), AuthMessage>(StatusCode::OK, (), AuthMessage::AuthSignoutSuccess)
 }

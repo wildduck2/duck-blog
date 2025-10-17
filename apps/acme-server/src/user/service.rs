@@ -160,7 +160,7 @@ impl UserService {
       r#"
       SELECT * 
       FROM users
-      WHERE users.id = $1 
+      WHERE users.id = $1::uuid
       "#,
     )
     .bind(user_id)

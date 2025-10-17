@@ -21,12 +21,12 @@ pub fn config(cfg: &mut web::ServiceConfig) {
     web::scope("/user")
       .service(create)
       .service(update)
+      .service(me)
       .service(reset_password)
       .service(
         web::scope("")
           .wrap(from_fn(auth_middleware))
-          .service(delete)
-          .service(me),
+          .service(delete), // .service(me),
       ),
   );
 }

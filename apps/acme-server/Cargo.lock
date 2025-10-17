@@ -12,6 +12,7 @@ dependencies = [
  "actix-web",
  "anyhow",
  "askama",
+ "base64 0.22.1",
  "bcrypt",
  "chrono",
  "dotenv",
