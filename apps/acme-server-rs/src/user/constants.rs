@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 pub enum UserMessage {
   // Success
   UserCreateSuccess,
+  UserUpdateSuccess,
   UserDeleteSuccess,
 
   // Error
@@ -16,6 +17,8 @@ pub enum UserMessage {
   UserGetProfileFailed,
   UserDeleteFailed,
   InvalidUuid,
+  UserUpdateFailed,
+  NothingToUpdate,
 }
 
 impl fmt::Display for UserMessage {

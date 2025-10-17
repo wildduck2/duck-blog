@@ -1,27 +1,51 @@
-use crate::common::validators::validate_uuid;
 use serde::Deserialize;
 use validator::Validate;
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct CreateUserDto {
-  #[validate(length(min = 1, max = 255, message = "VALIDATE_USERNAME_LENGTH"))]
+  #[validate(length(min = 1, max = 255, message = "ValidateUsernameLength"))]
   pub username: String,
 
-  #[validate(length(min = 8, message = "VALIDATE_PASSWORD_MIN_LENGTH"))]
+  #[validate(length(min = 8, message = "ValidatePasswordMinLength"))]
   pub password: String,
 
-  #[validate(length(min = 1, max = 255, message = "VALIDATE_EMAIL_LENGTH"))]
+  #[validate(
+    length(min = 1, max = 255, message = "ValidateEmailLength"),
+    email(message = "ValidateEmailShape")
+  )]
   pub email: String,
 
-  #[validate(length(min = 1, max = 255, message = "VALIDATE_FIRST_NAME_LENGTH"))]
+  #[validate(length(min = 1, max = 255, message = "ValidateFirstNameLength"))]
   pub first_name: String,
 
-  #[validate(length(min = 1, max = 255, message = "VALIDATE_LAST_NAME_LENGTH"))]
+  #[validate(length(min = 1, max = 255, message = "ValidateLastNameLength"))]
   pub last_name: String,
 }
 
 #[derive(Debug, Deserialize, Validate)]
+pub struct UpdateUserDto {
+  pub user_id: uuid::Uuid,
+
+  #[validate(length(min = 1, max = 255, message = "ValidateUsernameLength"))]
+  pub username: Option<String>,
+
+  #[validate(length(min = 8, message = "ValidatePasswordMinLength"))]
+  pub password: Option<String>,
+
+  #[validate(
+    length(min = 1, max = 255, message = "ValidateEmailLength"),
+    email(message = "ValidateEmailShape")
+  )]
+  pub email: Option<String>,
+
+  #[validate(length(min = 1, max = 255, message = "ValidateFirstNameLength"))]
+  pub first_name: Option<String>,
+
+  #[validate(length(min = 1, max = 255, message = "ValidateLastNameLength"))]
+  pub last_name: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Validate)]
 pub struct DeleteUserDto {
-  #[validate(custom = "validate_uuid")]
-  pub user_id: String,
+  pub user_id: uuid::Uuid,
 }
