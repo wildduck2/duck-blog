@@ -1,5 +1,5 @@
 use actix_session::Session;
-use actix_web::{get, post, web, HttpResponse, Responder};
+use actix_web::{delete, get, post, web, HttpResponse, Responder};
 use askama::Template;
 use lettre::{message::header::ContentType, Message, Transport};
 
@@ -9,10 +9,12 @@ mod service;
 pub mod types;
 
 use actix_web::middleware::from_fn;
+use uuid::Uuid;
 
 pub fn config(cfg: &mut web::ServiceConfig) {
   cfg.service(
     web::scope("/user")
+      .service(delete)
       .service(create)
       .service(web::scope("").wrap(from_fn(auth_middleware)).service(me)),
   );
@@ -20,9 +22,14 @@ pub fn config(cfg: &mut web::ServiceConfig) {
 
 use crate::{
   auth::guard::auth_middleware,
-  common::{ApiResult, Status},
+  common::{validators::validate_uuid, ApiResult, Status},
   email::emails::welcome_email::WelcomeEmail,
-  user::{constants::UserMessage, dto::CreateUserDto, service::UserService, types::User},
+  user::{
+    constants::UserMessage,
+    dto::{CreateUserDto, DeleteUserDto},
+    service::UserService,
+    types::User,
+  },
   AppState,
 };
 
@@ -63,10 +70,37 @@ async fn create(
 
       HttpResponse::Ok().json(ApiResult::<User, UserMessage> {
         data: Some(user),
-        message: UserMessage::UserCreateUserSuccess,
+        message: UserMessage::UserCreateSuccess,
         status: Status::Error,
       })
     },
+    Err(e) => HttpResponse::BadRequest().json(ApiResult::<User, UserMessage> {
+      data: None,
+      message: e,
+      status: Status::Error,
+    }),
+  }
+}
+
+#[delete("/delete")]
+pub async fn delete(
+  data: web::Data<AppState>,
+  credentials: web::Json<DeleteUserDto>,
+) -> impl Responder {
+  if Uuid::parse_str(&credentials.user_id).is_err() {
+    return HttpResponse::BadRequest().json(ApiResult::<User, UserMessage> {
+      data: None,
+      message: UserMessage::InvalidUuid,
+      status: Status::Error,
+    });
+  }
+
+  match UserService::delete(data, credentials.into_inner()).await {
+    Ok(_) => HttpResponse::Ok().json(ApiResult::<User, UserMessage> {
+      data: None,
+      message: UserMessage::UserDeleteSuccess,
+      status: Status::Ok,
+    }),
     Err(e) => HttpResponse::BadRequest().json(ApiResult::<User, UserMessage> {
       data: None,
       message: e,

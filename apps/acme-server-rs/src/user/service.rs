@@ -1,7 +1,11 @@
 use actix_web::web;
 
 use crate::{
-  user::{constants::UserMessage, dto::CreateUserDto, types::User},
+  user::{
+    constants::UserMessage,
+    dto::{CreateUserDto, DeleteUserDto},
+    types::User,
+  },
   AppState,
 };
 
@@ -34,6 +38,31 @@ impl UserService {
     });
 
     user
+  }
+
+  pub async fn delete(
+    data: web::Data<AppState>,
+    credentials: DeleteUserDto,
+  ) -> Result<(), UserMessage> {
+    let result = sqlx::query(
+      r#"
+        DELETE FROM users
+        WHERE id = $1::uuid
+      "#,
+    )
+    .bind(&credentials.user_id)
+    .execute(&data.db)
+    .await
+    .map_err(|e| {
+      println!("{:?}", e);
+      UserMessage::UserDeleteFailed
+    })?;
+
+    if result.rows_affected() == 0 {
+      return Err(UserMessage::UserNotFound);
+    }
+
+    Ok(())
   }
 
   pub async fn me(data: web::Data<AppState>, user_id: String) -> Result<User, UserMessage> {
