@@ -49,3 +49,5 @@ pub struct UpdateUserDto {
 pub struct DeleteUserDto {
   pub user_id: uuid::Uuid,
 }
+
+pub type ResetPasswordDto = DeleteUserDto;

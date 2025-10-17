@@ -1,7 +1,11 @@
+use actix_web::web;
+use lettre::message::header::ContentType;
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::transport::smtp::client::Tls;
-use lettre::SmtpTransport;
+use lettre::{Message, SmtpTransport, Transport};
 use std::env;
+
+use crate::AppState;
 
 pub mod emails;
 
@@ -28,4 +32,20 @@ pub async fn connect_to_smtp() -> SmtpTransport {
   }
 
   builder.build()
+}
+
+pub async fn send_reset_email(
+  data: &web::Data<AppState>,
+  recipient: &str,
+  html: &str,
+) -> Result<(), anyhow::Error> {
+  let email_message = Message::builder()
+    .from("Acme App <admin@example.com>".parse()?)
+    .to(recipient.parse()?)
+    .subject("Reset Password")
+    .header(ContentType::TEXT_HTML)
+    .body(html.to_string())?;
+
+  data.mailer.send(&email_message)?;
+  Ok(())
 }

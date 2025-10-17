@@ -8,6 +8,9 @@ pub enum UserMessage {
   UserCreateSuccess,
   UserUpdateSuccess,
   UserDeleteSuccess,
+  UserGetProfileSuccess,
+  UserResetPasswordSuccess,
+  UserGetSuccess,
 
   // Error
   AuthInsertUserIdSessionFailed,
@@ -19,6 +22,11 @@ pub enum UserMessage {
   InvalidUuid,
   UserUpdateFailed,
   NothingToUpdate,
+  UserResetPasswordFailed,
+  UserGetFailed,
+  UserResetPasswordEmailFailed,
+  UserUpdateProfileEmailFailed,
+  UserCreateEmailFailed,
 }
 
 impl fmt::Display for UserMessage {

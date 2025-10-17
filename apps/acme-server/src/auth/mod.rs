@@ -1,9 +1,9 @@
 use actix_session::Session;
-use actix_web::{post, web, HttpResponse, Responder};
+use actix_web::{http::StatusCode, post, web, Responder};
 
 use crate::{
   auth::{constants::AuthMessage, dto::SigninDto, service::AuthService},
-  common::{ApiResult, Status},
+  common::functionalities::api_res::{api_error, api_success},
   user::types::User,
   AppState,
 };
@@ -23,34 +23,21 @@ async fn singin(
   session: Session,
   data: web::Data<AppState>,
 ) -> impl Responder {
-  let user = AuthService::signin(data, credentials).await;
+  let user = match AuthService::signin(data, credentials).await {
+    Ok(user) => user,
+    Err(e) => return api_error::<User, AuthMessage>(StatusCode::BAD_REQUEST, e),
+  };
 
-  match user {
-    Ok(user) => {
-      session
-        .insert("user_id", user.id.to_string())
-        .expect(&AuthMessage::AuthInsertUserIdSessionFailed.to_string());
-      HttpResponse::Ok().json(ApiResult::<User, AuthMessage> {
-        data: Some(user),
-        message: AuthMessage::AuthSigninSuccess,
-        status: Status::Ok,
-      })
-    },
-    Err(e) => HttpResponse::Unauthorized().json(ApiResult::<User, AuthMessage> {
-      data: None,
-      message: e,
-      status: Status::Error,
-    }),
-  }
+  session
+    .insert("user_id", user.id.to_string())
+    .expect(&AuthMessage::AuthInsertUserIdSessionFailed.to_string());
+
+  api_success::<User, AuthMessage>(StatusCode::OK, user, AuthMessage::AuthSigninSuccess)
 }
 
 #[post("/signout")]
 pub async fn signout(session: Session) -> impl Responder {
   session.purge();
-
-  HttpResponse::Ok().json(ApiResult::<Option<u8>, AuthMessage> {
-    data: None,
-    message: AuthMessage::AuthSignoutSuccess,
-    status: Status::Ok,
-  })
+  // Err(e) => api_error::<Auth, AuthMessage>(StatusCode::BAD_REQUEST, e),
+  api_success::<(), AuthMessage>(StatusCode::OK, (), AuthMessage::AuthSignoutSuccess)
 }

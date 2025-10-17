@@ -17,7 +17,7 @@
             <tbody>
               <tr>
                 <td>
-                  <!-- Added centered Vercel logo at the top -->
+                  <!-- Centered logo at the top -->
                   <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
                     style="margin:0 0 32px 0;text-align:center">
                     <tbody>
@@ -25,53 +25,83 @@
                         <td style="text-align:center">
                           <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"
                             style="display:inline-block">
-                            <path d="M20 0L40 40H0L20 0Z" fill="hsl(240 5.9% 10%)" />
+                            <circle cx="20" cy="20" r="18" stroke="hsl(240 5.9% 10%)" stroke-width="2" fill="none"/>
+                            <path d="M20 14V20L24 24" stroke="hsl(240 5.9% 10%)" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M12 12L16 16M28 12L24 16" stroke="hsl(240 5.9% 10%)" stroke-width="2" stroke-linecap="round"/>
                           </svg>
                         </td>
                       </tr>
                     </tbody>
                   </table>
-                  <!-- Updated all colors to shadcn HSL palette -->
+                  
                   <h1
                     style="margin:0 0 24px 0;padding:0;text-align:center;font-weight:700;font-size:32px;color:hsl(240 5.9% 10%)">
-                    Verify Your Email</h1>
+                    Reset Your Password</h1>
+                  
                   <p style="font-size:15px;color:hsl(240 10% 3.9%);line-height:24px;margin:16px 0">
-                    Hi <!-- -->Jessica<!-- -->,
+                    Hi <strong>{{ username }}</strong>,
                   </p>
+                  
                   <p style="font-size:15px;color:hsl(240 10% 3.9%);line-height:24px;margin:16px 0">
-                    Thank you for signing up! Please verify your email address to complete your account setup.
+                    We received a request to reset your password. Use the code below to reset it.
                   </p>
+                  
                   <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
                     style="margin:24px 0;background-color:hsl(240 4.8% 95.9%);border-radius:6px;padding:20px;text-align:center;border:1px solid hsl(240 5.9% 90%)">
                     <tbody>
                       <tr>
                         <td>
-                          <p style="margin:0;font-size:12px;color:hsl(240 3.8% 46.1%)">Verification Code</p>
+                          <p style="margin:0;font-size:12px;color:hsl(240 3.8% 46.1%)">Reset Code</p>
                           <p
                             style="margin:8px 0 0 0;font-size:28px;font-weight:700;color:hsl(240 5.9% 10%);font-family:monospace;letter-spacing:4px">
-                            123456</p>
+                            {{ reset_code }}</p>
                         </td>
                       </tr>
                     </tbody>
                   </table>
+                  
                   <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
                     style="margin:32px 0;text-align:center">
                     <tbody>
                       <tr>
                         <td>
-                          <a href="https://example.com/verify?code=123456"
+                          <a href="{{ reset_link }}"
                             style="border-radius:6px;background-color:hsl(240 5.9% 10%);padding:12px 28px;text-align:center;font-weight:600;font-size:14px;color:hsl(0 0% 98%);text-decoration:none;display:inline-block"
-                            target="_blank">Verify Email</a>
+                            target="_blank">Reset Password</a>
                         </td>
                       </tr>
                     </tbody>
                   </table>
-                  <p style="font-size:13px;color:hsl(240 3.8% 46.1%);line-height:20px;margin:16px 0">
-                    Or enter this code: <strong>123456</strong>
+                  
+                  <p style="font-size:13px;color:hsl(240 3.8% 46.1%);line-height:20px;margin:16px 0;text-align:center">
+                    Or enter this code: <strong style="color:hsl(240 5.9% 10%)">{{ reset_code }}</strong>
                   </p>
+                  
+                  <!-- Security warning -->
+                  <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                    style="margin:24px 0;background-color:hsl(0 84% 95%);border-left:4px solid hsl(0 84% 60%);border-radius:4px;padding:16px">
+                    <tbody>
+                      <tr>
+                        <td>
+                          <p style="margin:0;font-size:14px;font-weight:600;color:hsl(240 5.9% 10%)">
+                            Security Alert
+                          </p>
+                          <p style="margin:8px 0 0 0;font-size:13px;color:hsl(240 10% 3.9%);line-height:20px">
+                            This code will expire in <strong>15 minutes</strong>. If you didn't request a password reset, please ignore this email or contact support if you're concerned.
+                          </p>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  
                   <hr style="margin:26px 0;border:none;border-top:1px solid hsl(240 5.9% 90%)" />
+                  
                   <p style="color:hsl(240 3.8% 46.1%);font-size:13px;line-height:24px;margin:16px 0">
-                    This code will expire in 24 hours. If you didn't create this account, please ignore this email.
+                    If you need help, please contact our support team.
+                  </p>
+                  
+                  <p style="color:hsl(240 3.8% 46.1%);font-size:12px;line-height:20px;margin:16px 0">
+                    This is an automated message, please do not reply to this email.
                   </p>
                 </td>
               </tr>

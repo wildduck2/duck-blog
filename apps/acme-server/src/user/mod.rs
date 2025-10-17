@@ -1,8 +1,13 @@
+use crate::common::functionalities::api_res::{api_error, api_success};
+use crate::common::generators;
+use crate::email::send_reset_email;
+use crate::otp_code;
+use crate::otp_code::constants::OtpCodeMessage;
 use actix_session::Session;
-use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
+use actix_web::http::StatusCode;
+use actix_web::{delete, get, patch, post, web, Responder};
 use askama::Template;
 use chrono::{Datelike, Local};
-use lettre::{message::header::ContentType, Message, Transport};
 
 mod constants;
 mod dto;
@@ -13,25 +18,25 @@ use actix_web::middleware::from_fn;
 
 pub fn config(cfg: &mut web::ServiceConfig) {
   cfg.service(
-    web::scope("/user").service(create).service(update).service(
-      web::scope("")
-        .wrap(from_fn(auth_middleware))
-        .service(delete)
-        .service(me),
-    ),
+    web::scope("/user")
+      .service(create)
+      .service(update)
+      .service(reset_password)
+      .service(
+        web::scope("")
+          .wrap(from_fn(auth_middleware))
+          .service(delete)
+          .service(me),
+      ),
   );
 }
 
 use crate::{
   auth::guard::auth_middleware,
-  common::{ApiResult, Status},
-  email::emails::{
-    updated_user_info::{UpdateUserEmail, UpdatedField},
-    welcome_email::WelcomeEmail,
-  },
+  email::emails::{ResetPasswordEmail, UpdateUserEmail, WelcomeEmail},
   user::{
     constants::UserMessage,
-    dto::{CreateUserDto, DeleteUserDto, UpdateUserDto},
+    dto::{CreateUserDto, DeleteUserDto, ResetPasswordDto, UpdateUserDto},
     service::UserService,
     types::User,
   },
@@ -44,126 +49,130 @@ async fn create(
   session: Session,
   data: web::Data<AppState>,
 ) -> impl Responder {
-  let user = UserService::create(&data, creditials.into_inner()).await;
-  println!("asdfasd f");
+  let user = match UserService::create(&data, creditials.into_inner()).await {
+    Ok(user) => user,
+    Err(e) => return api_error::<User, UserMessage>(StatusCode::BAD_REQUEST, e),
+  };
 
-  match user {
-    Ok(user) => {
-      session
-        .insert("user_id", user.id.to_string())
-        .expect(&UserMessage::AuthInsertUserIdSessionFailed.to_string());
+  session
+    .insert("user_id", user.id.to_string())
+    .expect(&UserMessage::AuthInsertUserIdSessionFailed.to_string());
 
-      let email = WelcomeEmail {
-        username: &user.username,
-        dashboard_url: "http://localhost:3000/dashboard/",
-        current_year: chrono::Utc::now().year(),
-      };
+  let email = WelcomeEmail {
+    username: &user.username,
+    dashboard_url: "http://localhost:3000/dashboard/",
+    current_year: chrono::Utc::now().year(),
+  };
 
-      let html = email.render().unwrap();
+  let html = email.render().unwrap();
 
-      let email = Message::builder()
-        .from("Acme App <admin@example.com>".parse().unwrap())
-        .to(user.email.clone().parse().unwrap())
-        .subject("Welcome to ACME")
-        .header(ContentType::TEXT_HTML)
-        .body(html)
-        .unwrap();
-
-      match data.mailer.send(&email) {
-        Ok(_) => println!("Email sent successfully!"),
-        Err(e) => eprintln!("Could not send email: {:?}", e),
-      }
-
-      HttpResponse::Ok().json(ApiResult::<User, UserMessage> {
-        data: Some(user),
-        message: UserMessage::UserCreateSuccess,
-        status: Status::Error,
-      })
-    },
-    Err(e) => HttpResponse::BadRequest().json(ApiResult::<User, UserMessage> {
-      data: None,
-      message: e,
-      status: Status::Error,
-    }),
+  if let Err(e) = send_reset_email(&data, &user.email, &html).await {
+    eprintln!("Email send failed: {:?}", e);
+    return api_error::<User, UserMessage>(
+      StatusCode::BAD_REQUEST,
+      UserMessage::UserCreateEmailFailed,
+    );
   }
+
+  api_success::<User, UserMessage>(StatusCode::OK, user, UserMessage::UserCreateSuccess)
 }
 
 #[patch("/update")]
-pub async fn update(
+async fn update(
   data: web::Data<AppState>,
   credentials: web::Json<UpdateUserDto>,
 ) -> impl Responder {
-  let user = UserService::update(&data, credentials.into_inner()).await;
-  match user {
-    Ok((user, updated_fields)) => {
-      let date = Local::now().format("%B %-d, %Y at %-I:%M %p").to_string();
-      let email = UpdateUserEmail {
-        username: &user.username,
-        view_profile_link: "https://example.com/profile",
-        updated_fields,
-        last_update: &date,
-      };
+  let (user, updated_fields) = match UserService::update(&data, credentials.into_inner()).await {
+    Ok(user) => user,
+    Err(e) => return api_error::<User, UserMessage>(StatusCode::BAD_REQUEST, e),
+  };
 
-      let html = email.render().unwrap();
+  let date = Local::now().format("%B %-d, %Y at %-I:%M %p").to_string();
+  let email = UpdateUserEmail {
+    username: &user.username,
+    view_profile_link: "https://example.com/profile",
+    updated_fields,
+    last_update: &date,
+  };
 
-      let email = Message::builder()
-        .from("Acme App <admin@example.com>".parse().unwrap())
-        .to(user.email.clone().parse().unwrap())
-        .subject("Welcome to ACME")
-        .header(ContentType::TEXT_HTML)
-        .body(html)
-        .unwrap();
+  let html = email.render().unwrap();
 
-      match data.mailer.send(&email) {
-        Ok(_) => println!("Email sent successfully!"),
-        Err(e) => eprintln!("Could not send email: {:?}", e),
-      }
-
-      HttpResponse::Ok().json(ApiResult::<User, UserMessage> {
-        data: Some(user),
-        message: UserMessage::UserUpdateSuccess,
-        status: Status::Ok,
-      })
-    },
-
-    Err(_) => HttpResponse::BadRequest().json(ApiResult::<User, UserMessage> {
-      data: None,
-      message: UserMessage::UserUpdateFailed,
-      status: Status::Error,
-    }),
+  if let Err(e) = send_reset_email(&data, &user.email, &html).await {
+    eprintln!("Email send failed: {:?}", e);
+    return api_error::<User, UserMessage>(
+      StatusCode::BAD_REQUEST,
+      UserMessage::UserUpdateProfileEmailFailed,
+    );
   }
+
+  api_success::<User, UserMessage>(StatusCode::OK, user, UserMessage::UserUpdateSuccess)
+}
+
+#[post("/reset-password")]
+async fn reset_password(
+  data: web::Data<AppState>,
+  credentials: web::Json<ResetPasswordDto>,
+) -> impl Responder {
+  let user = match UserService::get(&data, credentials.into_inner()).await {
+    Ok(user) => user,
+    Err(e) => return api_error::<User, UserMessage>(StatusCode::BAD_REQUEST, e),
+  };
+
+  let code = generators::code::generate_code(6);
+  let otp = match otp_code::service::OtpCodeService::create(&data, code.clone(), user.id).await {
+    Ok(otp) => otp,
+    Err(e) => return api_error::<User, OtpCodeMessage>(StatusCode::BAD_REQUEST, e),
+  };
+
+  let email = ResetPasswordEmail {
+    username: &user.username,
+    reset_code: &otp.code,
+    reset_link: &format!("https://example.com/reset-password?code={}", otp.code),
+  };
+
+  let html = match email.render() {
+    Ok(html) => html,
+    Err(_) => {
+      return api_error::<User, UserMessage>(
+        StatusCode::BAD_REQUEST,
+        UserMessage::UserResetPasswordFailed,
+      );
+    },
+  };
+
+  if let Err(e) = send_reset_email(&data, &user.email, &html).await {
+    eprintln!("Email send failed: {:?}", e);
+    return api_error::<User, UserMessage>(
+      StatusCode::BAD_REQUEST,
+      UserMessage::UserResetPasswordEmailFailed,
+    );
+  }
+
+  api_success::<User, UserMessage>(StatusCode::OK, user, UserMessage::UserResetPasswordSuccess)
 }
 
 #[delete("/delete")]
-pub async fn delete(
+async fn delete(
   data: web::Data<AppState>,
   credentials: web::Json<DeleteUserDto>,
 ) -> impl Responder {
   match UserService::delete(data, credentials.into_inner()).await {
-    Ok(_) => HttpResponse::Ok().json(ApiResult::<User, UserMessage> {
-      data: None,
-      message: UserMessage::UserDeleteSuccess,
-      status: Status::Ok,
-    }),
-    Err(e) => HttpResponse::BadRequest().json(ApiResult::<User, UserMessage> {
-      data: None,
-      message: e,
-      status: Status::Error,
-    }),
+    Ok(_) => api_success::<(), UserMessage>(StatusCode::OK, (), UserMessage::UserDeleteSuccess),
+    Err(e) => api_error::<User, UserMessage>(StatusCode::BAD_REQUEST, e),
   }
 }
 
 #[get("/me")]
-pub async fn me(data: web::Data<AppState>, session: Session) -> impl Responder {
+async fn me(data: web::Data<AppState>, session: Session) -> impl Responder {
   let user_id = session
     .get::<String>("user_id")
     .expect(&UserMessage::AuthGetSessionUserIdSessionFailed.to_string())
     .unwrap();
 
-  let user = UserService::me(data, user_id).await;
+  let user = match UserService::me(data, user_id).await {
+    Ok(user) => user,
+    Err(e) => return api_error::<User, UserMessage>(StatusCode::BAD_REQUEST, e),
+  };
 
-  match user {
-    Ok(user) => HttpResponse::Ok().json(user),
-    Err(e) => HttpResponse::InternalServerError().body(format!("DB error: {e}")),
-  }
+  api_success::<User, UserMessage>(StatusCode::OK, user, UserMessage::UserGetProfileSuccess)
 }

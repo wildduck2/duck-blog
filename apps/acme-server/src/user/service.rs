@@ -1,10 +1,10 @@
 use actix_web::web;
 
 use crate::{
-  email::emails::updated_user_info::UpdatedField,
+  email::emails::UpdatedField,
   user::{
     constants::UserMessage,
-    dto::{CreateUserDto, DeleteUserDto, UpdateUserDto},
+    dto::{CreateUserDto, DeleteUserDto, ResetPasswordDto, UpdateUserDto},
     types::User,
   },
   AppState,
@@ -15,6 +15,36 @@ use sqlx::QueryBuilder;
 pub struct UserService;
 
 impl UserService {
+  pub async fn get(
+    data: &web::Data<AppState>,
+    credentials: ResetPasswordDto,
+  ) -> Result<User, UserMessage> {
+    println!("{}", credentials.user_id);
+    let user = sqlx::query_as::<_, User>(
+      r#"
+        SELECT *
+        FROM users u
+        WHERE u.id = $1::uuid
+          AND NOT EXISTS (
+            SELECT 1
+            FROM otp_codes oc
+            WHERE oc.user_id = u.id
+              AND oc.expires_at > NOW()
+              AND oc.is_active = true
+          );
+    "#,
+    )
+    .bind(&credentials.user_id)
+    .fetch_one(&data.db)
+    .await
+    .map_err(|e| {
+      println!("{}", e);
+      UserMessage::UserGetFailed
+    })?;
+
+    Ok(user)
+  }
+
   pub async fn create(
     data: &web::Data<AppState>,
     credentials: CreateUserDto,
@@ -25,7 +55,7 @@ impl UserService {
       r#"
         INSERT INTO users (username, email, first_name, last_name, password_hash)
         VALUES ($1, $2, $3, $4, $5)
-        RETURNING id, username, email, first_name, last_name, avatar_url, is_active, last_login_at, settings, version, created_at, updated_at, deleted_at, password_hash 
+        RETURNING * 
       "#,
     )
     .bind(&credentials.username)
@@ -92,7 +122,10 @@ impl UserService {
       .build_query_as::<User>()
       .fetch_one(&data.db)
       .await
-      .map_err(|_| UserMessage::UserUpdateFailed)?;
+      .map_err(|e| {
+        println!("{:?}", e);
+        UserMessage::UserUpdateFailed
+      })?;
 
     Ok((updated_user, fields_updated))
   }
@@ -133,7 +166,10 @@ impl UserService {
     .bind(user_id)
     .fetch_one(&data.db)
     .await
-    .map_err(|_| UserMessage::UserGetProfileFailed)?;
+    .map_err(|e| {
+      println!("{:?}", e);
+      UserMessage::UserGetProfileFailed
+    })?;
 
     Ok(user)
   }

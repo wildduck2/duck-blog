@@ -2,14 +2,12 @@ use actix_session::SessionExt;
 use actix_web::{
   body::MessageBody,
   dev::{ServiceRequest, ServiceResponse},
+  http::StatusCode,
   middleware::Next,
-  Error, HttpResponse,
+  Error,
 };
 
-use crate::{
-  auth::constants::AuthMessage,
-  common::{ApiResult, Status},
-};
+use crate::{auth::constants::AuthMessage, common::functionalities::api_res::api_error};
 
 pub async fn auth_middleware(
   req: ServiceRequest,
@@ -24,11 +22,12 @@ pub async fn auth_middleware(
   } else {
     // User not logged in, return unauthorized response
     let (req, _payload) = req.into_parts();
-    let response = HttpResponse::Unauthorized().json(ApiResult::<Option<u8>, AuthMessage> {
-      data: None,
-      message: AuthMessage::AuthSigninFailed,
-      status: Status::Error,
-    });
-    Ok(ServiceResponse::new(req, response).map_into_right_body())
+    Ok(
+      ServiceResponse::new(
+        req,
+        api_error::<(), AuthMessage>(StatusCode::BAD_REQUEST, AuthMessage::AuthSigninFailed),
+      )
+      .map_into_right_body(),
+    )
   }
 }

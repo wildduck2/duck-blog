@@ -3,7 +3,6 @@ use std::env;
 use ::sqlx::PgPool;
 use actix_web::{
   cookie::{time::Duration, Key},
-  middleware::Logger as ActixLogger,
   web, App, HttpServer,
 };
 use dotenv::dotenv;
@@ -18,6 +17,7 @@ use crate::email::connect_to_smtp;
 mod auth;
 mod common;
 mod email;
+mod otp_code;
 mod redis;
 mod sqlx;
 mod user;
@@ -65,6 +65,7 @@ async fn main() -> std::io::Result<()> {
       }))
       .configure(auth::config)
       .configure(user::config)
+      .configure(otp_code::config)
   })
   .bind(("127.0.0.1", address))?
   .run()
