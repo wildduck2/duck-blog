@@ -1,12 +1,12 @@
 import { relations } from 'drizzle-orm'
-import { accessTokens, otpCodes, services, users } from './tables'
+import { otpCodes, users, words } from './tables'
 
 /**
  * USERS RELATIONS
  */
 export const usersRelations = relations(users, ({ many }) => ({
-  accessTokens: many(accessTokens),
   otpCodes: many(otpCodes),
+  words: many(words),
 }))
 
 /**
@@ -20,22 +20,11 @@ export const otpCodesRelations = relations(otpCodes, ({ one }) => ({
 }))
 
 /**
- * SERVICES RELATIONS
+ * Words RELATIONS
  */
-export const servicesRelations = relations(services, ({ many }) => ({
-  tokens: many(accessTokens),
-}))
-
-/**
- * ACCESS TOKENS RELATIONS
- */
-export const accessTokensRelations = relations(accessTokens, ({ one }) => ({
-  service: one(services, {
-    fields: [accessTokens.service_id],
-    references: [services.id],
-  }),
+export const wordsRelations = relations(words, ({ one }) => ({
   user: one(users, {
-    fields: [accessTokens.user_id],
+    fields: [words.user_id],
     references: [users.id],
   }),
 }))

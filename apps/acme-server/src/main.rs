@@ -21,6 +21,7 @@ mod otp_code;
 mod redis;
 mod sqlx;
 mod user;
+mod words;
 
 struct AppState {
   db: PgPool,
@@ -69,6 +70,7 @@ async fn main() -> std::io::Result<()> {
       .configure(auth::config)
       .configure(user::config)
       .configure(otp_code::config)
+      .configure(words::config)
   })
   .bind(("127.0.0.1", address))?
   .run()

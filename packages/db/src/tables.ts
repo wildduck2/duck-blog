@@ -69,51 +69,17 @@ export const otpCodes = pgTable(
   ],
 )
 
-/**
- * @name SERVICES
- * @description Defines the API services for which tokens exist
- */
-export const services = pgTable(
-  'services',
+export const words = pgTable(
+  'words',
   {
+    category: varchar('category', { length: 255 }).notNull(),
     created_at: timestamp('created_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-    deleted_at: timestamp('deleted_at', { withTimezone: true }),
-    description: text('description'),
     id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
-    name: varchar('name', { length: 100 }).notNull().unique(),
+    literal: varchar('literal', { length: 255 }).notNull(),
     updated_at: timestamp('updated_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-  },
-  (table) => [
-    uniqueIndex('service_name_idx').on(table.name),
-    index('active_services_idx').on(table.name).where(sql`deleted_at IS NULL`),
-  ],
-)
-
-/**
- * @name ACCESS TOKENS
- * @description Stores tokens per service (and optionally linked to a user)
- */
-export const accessTokens = pgTable(
-  'access_tokens',
-  {
-    created_at: timestamp('created_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-    deleted_at: timestamp('deleted_at', { withTimezone: true }),
-    expires_at: timestamp('expires_at', { withTimezone: true }).notNull(),
-    id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
-    name: varchar('name', { length: 255 }).notNull(),
-    notified: boolean('notified').default(false),
-    renewed_at: timestamp('renewed_at', { withTimezone: true }),
-    service_id: uuid('service_id')
+    user_id: uuid('user_id')
       .notNull()
-      .references(() => services.id, { onDelete: 'cascade' }),
-    status: tokenStatus('status').notNull(),
-    token: varchar('token', { length: 255 }).notNull(),
-    updated_at: timestamp('updated_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-    user_id: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+      .references(() => users.id, { onDelete: 'cascade' }),
   },
-  (table) => [
-    index('token_service_idx').on(table.service_id, table.status),
-    index('token_expiry_idx').on(table.expires_at),
-    index('token_user_idx').on(table.user_id),
-  ],
+  (table) => [index('user_words_idx').on(table.user_id, table.created_at)],
 )

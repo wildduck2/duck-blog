@@ -16,17 +16,17 @@ pub mod types;
 
 use actix_web::middleware::from_fn;
 
-pub fn config(cfg: &mut web::ServiceConfig) {
+pub fn config(cfg: &mut web::ServiceConfig) -> () {
   cfg.service(
     web::scope("/user")
-      .service(create)
-      .service(update)
-      .service(me)
-      .service(reset_password)
+      .service(user_create)
+      .service(user_reset_password)
       .service(
         web::scope("")
           .wrap(from_fn(auth_middleware))
-          .service(delete), // .service(me),
+          .service(user_update)
+          .service(user_me)
+          .service(user_delete),
       ),
   );
 }
@@ -44,7 +44,7 @@ use crate::{
 };
 
 #[post("/create")]
-async fn create(
+async fn user_create(
   creditials: web::Json<CreateUserDto>,
   session: Session,
   data: web::Data<AppState>,
@@ -78,7 +78,7 @@ async fn create(
 }
 
 #[patch("/update")]
-async fn update(
+async fn user_update(
   data: web::Data<AppState>,
   credentials: web::Json<UpdateUserDto>,
 ) -> impl Responder {
@@ -109,7 +109,7 @@ async fn update(
 }
 
 #[post("/reset-password")]
-async fn reset_password(
+async fn user_reset_password(
   data: web::Data<AppState>,
   credentials: web::Json<ResetPasswordDto>,
 ) -> impl Responder {
@@ -152,7 +152,7 @@ async fn reset_password(
 }
 
 #[delete("/delete")]
-async fn delete(
+async fn user_delete(
   data: web::Data<AppState>,
   credentials: web::Json<DeleteUserDto>,
 ) -> impl Responder {
@@ -163,7 +163,7 @@ async fn delete(
 }
 
 #[get("/me")]
-async fn me(data: web::Data<AppState>, session: Session) -> impl Responder {
+async fn user_me(data: web::Data<AppState>, session: Session) -> impl Responder {
   let user_id = session
     .get::<String>("user_id")
     .expect(&UserMessage::AuthGetSessionUserIdSessionFailed.to_string())
