@@ -34,11 +34,8 @@ impl AuthService {
     };
 
     // verifying the password
-    if !bcrypt::verify(&credentials.password, &user.password_hash)
-      .expect("Failed to verify the password")
-    {
-      return Err(AuthMessage::AuthPasswordInvalid.into());
-    }
+    let _ = bcrypt::verify(&credentials.password, &user.password_hash)
+      .map_err(|_| AuthMessage::AuthPasswordInvalid);
 
     Ok(user)
   }

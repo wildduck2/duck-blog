@@ -5,13 +5,18 @@
     "incremental": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
     "paths": {
-      "~/*": ["./*"],
-      "~/server/*": ["../acme-server/src/*"]
+      "~/*": [
+        "./*"
+      ]
     },
     "plugins": [
       {
@@ -22,8 +27,16 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ES2017",
-    "types": ["next", "../acme-server/src/*"]
+    "types": [
+      "next"
+    ]
   },
   "exclude": [],
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "../acme-server/src/*"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "../acme-server/src/*"
+  ]
 }

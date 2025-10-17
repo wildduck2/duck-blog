@@ -17,7 +17,7 @@ pub fn config(cfg: &mut web::ServiceConfig) -> () {
   cfg.service(web::scope("/auth").service(singin).service(signout));
 }
 
-#[post("singin")]
+#[post("signin")]
 async fn singin(
   credentials: web::Json<SigninDto>,
   session: Session,

@@ -1,4 +1,4 @@
-use actix_session::SessionExt;
+use actix_session::{Session, SessionExt};
 use actix_web::{
   body::MessageBody,
   dev::{ServiceRequest, ServiceResponse},
@@ -12,8 +12,10 @@ use crate::{auth::constants::AuthMessage, common::functionalities::api_res::api_
 pub async fn auth_middleware(
   req: ServiceRequest,
   next: Next<impl MessageBody + 'static>,
+  // session: Session,
 ) -> Result<ServiceResponse<impl MessageBody>, Error> {
   let session = req.get_session();
+  println!("{:?}", session.entries());
 
   // Check if user is logged in
   if session.get::<String>("user_id")?.is_some() {
@@ -25,7 +27,7 @@ pub async fn auth_middleware(
     Ok(
       ServiceResponse::new(
         req,
-        api_error::<(), AuthMessage>(StatusCode::BAD_REQUEST, AuthMessage::AuthSigninFailed),
+        api_error::<(), AuthMessage>(StatusCode::UNAUTHORIZED, AuthMessage::AuthSigninFailed),
       )
       .map_into_right_body(),
     )

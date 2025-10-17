@@ -14,6 +14,22 @@ use crate::{
 pub struct WordsService;
 
 impl WordsService {
+  pub async fn get_all(data: &web::Data<AppState>) -> Result<Vec<Word>, WordsMessage> {
+    let words = sqlx::query_as::<_, Word>(
+      r#"
+        SELECT * FROM words
+      "#,
+    )
+    .fetch_all(&data.db)
+    .await
+    .map_err(|e| {
+      println!("{}", e);
+      WordsMessage::WordGetFailed
+    })?;
+
+    Ok(words)
+  }
+
   pub async fn create(
     data: &web::Data<AppState>,
     credentials: WordsCreateDto,

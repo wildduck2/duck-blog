@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation'
 import type React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { type SigninSchemaType, signinSchema } from '~/server/auth/auth.dto'
+// import { type SigninSchemaType, signinSchema } from '~/server/auth/auth.dto'
 import { userAtom } from '../auth.atom'
 import { PasswordInput } from '../auth.chunks'
 import { handleSignin } from './signin.libs'
@@ -27,13 +27,13 @@ export function SigninPage({ className, ...props }: React.ComponentProps<'div'>)
       username: '',
     },
     mode: 'onChange',
-    resolver: zodResolver(signinSchema),
+    // resolver: zodResolver(signinSchema),
   })
 
   const signinMutation = useMutation({
     mutationFn: handleSignin,
     onSuccess: (data) => {
-      if (data?.state === 'success') {
+      if (data?.status === 'Ok') {
         localStorage.setItem('user', JSON.stringify(data.data))
         toast.success('Signed in successfully')
         userAtomSetter(data.data)

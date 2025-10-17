@@ -1,4 +1,4 @@
-use actix_web::{delete, http::StatusCode, middleware::from_fn, patch, post, web, Responder};
+use actix_web::{delete, get, http::StatusCode, middleware::from_fn, patch, post, web, Responder};
 
 use crate::{
   auth::guard::auth_middleware,
@@ -22,15 +22,26 @@ pub fn config(cfg: &mut web::ServiceConfig) -> () {
     web::scope("/words").service(
       web::scope("")
         .wrap(from_fn(auth_middleware))
-        .service(work_create)
-        .service(work_delete)
-        .service(work_update),
+        .service(word_create)
+        .service(word_delete)
+        .service(word_update)
+        .service(word_get),
     ),
   );
 }
 
+#[get("/get-all")]
+async fn word_get(data: web::Data<AppState>) -> impl Responder {
+  let words = match WordsService::get_all(&data).await {
+    Ok(words) => words,
+    Err(e) => return api_error::<Vec<Word>, WordsMessage>(StatusCode::BAD_REQUEST, e),
+  };
+
+  api_success::<Vec<Word>, WordsMessage>(StatusCode::OK, words, WordsMessage::WordGetSuccess)
+}
+
 #[post("/create")]
-async fn work_create(
+async fn word_create(
   data: web::Data<AppState>,
   credentials: web::Json<WordsCreateDto>,
 ) -> impl Responder {
@@ -43,7 +54,7 @@ async fn work_create(
 }
 
 #[patch("/update")]
-async fn work_update(
+async fn word_update(
   data: web::Data<AppState>,
   credentials: web::Json<WordsUpdateDto>,
 ) -> impl Responder {
@@ -56,11 +67,10 @@ async fn work_update(
 }
 
 #[delete("/delete")]
-async fn work_delete(
+async fn word_delete(
   data: web::Data<AppState>,
   credentials: web::Json<WordsDeleteDto>,
 ) -> impl Responder {
-  println!("{:?}", credentials);
   match WordsService::delete(&data, credentials.into_inner()).await {
     Ok(word) => word,
     Err(e) => return api_error::<Word, WordsMessage>(StatusCode::BAD_REQUEST, e),

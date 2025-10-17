@@ -7,7 +7,7 @@ export default async function Layout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const cookie = await cookies().then((res) => res.get('connect.sid'))
+  const cookie = await cookies().then((res) => res.get('acme-session'))
   if (!cookie) {
     return <AuthLayout>{children}</AuthLayout>
   }

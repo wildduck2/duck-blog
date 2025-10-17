@@ -1,6 +1,6 @@
 'use client'
 
-import { User } from '@acme/acme-db/types'
+import { User } from '@acme/db/types'
 import { Avatar } from '@acme/ui/avatar'
 import {
   DropdownMenu,
@@ -26,7 +26,7 @@ export function NavUser() {
 
   const { data: user, isLoading } = useQuery({
     queryFn: async () => {
-      const { data } = await server_api.get(process.env.NEXT_PUBLIC_API_URL + '/v1/auth/me', {
+      const { data } = await server_api.get(process.env.NEXT_PUBLIC_API_URL + '/v1/user/me', {
         withCredentials: true,
       })
       return data.data as User

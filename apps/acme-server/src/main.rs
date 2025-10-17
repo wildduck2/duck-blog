@@ -1,16 +1,15 @@
 use std::env;
 
 use ::sqlx::PgPool;
-use actix_web::{
-  cookie::{time::Duration, Key},
-  web, App, HttpServer,
-};
+use actix_web::cookie::{time::Duration, Key};
 use dotenv::dotenv;
 use lettre::SmtpTransport;
 
+use actix_cors::Cors;
 use actix_identity::IdentityMiddleware;
 use actix_session::config::PersistentSession;
 use actix_session::{storage::RedisSessionStore, SessionMiddleware};
+use actix_web::{http::header, web, App, HttpServer};
 
 use crate::email::connect_to_smtp;
 
@@ -46,33 +45,48 @@ async fn main() -> std::io::Result<()> {
     .unwrap_or("8080".to_string())
     .parse()
     .expect("Invalid port");
-  println!("🦆 Starting server on http://127.0.0.1:{address}");
+  println!("🦆 Starting server on http://localhost:{address}");
 
   HttpServer::new(move || {
+    let cors = Cors::default()
+      .allowed_methods(vec!["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+      .allowed_headers(vec![header::AUTHORIZATION, header::CONTENT_TYPE])
+      .allowed_origin_fn(|origin, _req_head| {
+        let allowed = [
+          "http://localhost:3001",
+          "http://localhost:3000", // Add if needed
+          "https://blog.gentleduck.com",
+        ];
+        allowed.contains(&origin.to_str().unwrap())
+      })
+      .supports_credentials()
+      .max_age(3600);
+
     App::new()
-      // Add the identity middleware to the service
-      .wrap(IdentityMiddleware::default())
+      .wrap(cors)
       .wrap(
-        // Add the session middleware to the service
         SessionMiddleware::builder(redis_client.clone(), secret_key.clone())
-          // Set the session cookie to expire in 7 days
           .cookie_name("acme-session".to_string())
-          // .cookie_http_only(true)
+          // .cookie_http_only(false)
           .session_lifecycle(PersistentSession::default().session_ttl(Duration::days(7)))
           .build(),
       )
+      .wrap(IdentityMiddleware::default())
       // Add the logger middleware to the service
       .app_data(web::Data::new(AppState {
         db: pool.clone(),
         redis: redis_client.clone(),
         mailer: mailer.clone(),
       }))
-      .configure(auth::config)
-      .configure(user::config)
-      .configure(otp_code::config)
-      .configure(words::config)
+      .service(
+        web::scope("/v1")
+          .configure(auth::config)
+          .configure(user::config)
+          .configure(otp_code::config)
+          .configure(words::config),
+      )
   })
-  .bind(("127.0.0.1", address))?
+  .bind(("localhost", address))?
   .run()
   .await
 }
