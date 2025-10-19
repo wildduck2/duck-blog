@@ -111,12 +111,8 @@
           "name": "otp_codes_user_id_users_id_fk",
           "tableFrom": "otp_codes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -282,16 +278,12 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         },
         "users_username_unique": {
           "name": "users_username_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "username"
-          ]
+          "columns": ["username"]
         }
       },
       "policies": {},
@@ -382,12 +374,8 @@
           "name": "words_user_id_users_id_fk",
           "tableFrom": "words",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -403,11 +391,7 @@
     "public.token_status": {
       "name": "token_status",
       "schema": "public",
-      "values": [
-        "active",
-        "expired",
-        "revoked"
-      ]
+      "values": ["active", "expired", "revoked"]
     }
   },
   "schemas": {},
