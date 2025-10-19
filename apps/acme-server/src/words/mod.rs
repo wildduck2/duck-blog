@@ -1,5 +1,3 @@
-use actix_web::{delete, get, http::StatusCode, middleware::from_fn, patch, post, web, Responder};
-
 use crate::{
   auth::guard::auth_middleware,
   common::functionalities::api_res::{api_error, api_success},
@@ -11,9 +9,13 @@ use crate::{
   },
   AppState,
 };
+use actix_web::{
+  delete, get, http::StatusCode, middleware::from_fn, patch, post, web, HttpResponse, Responder,
+};
 
 mod constants;
 mod dto;
+mod libs;
 mod service;
 mod types;
 
@@ -45,7 +47,21 @@ async fn word_create(
   data: web::Data<AppState>,
   credentials: web::Json<WordsCreateDto>,
 ) -> impl Responder {
-  let word = match WordsService::create(&data, credentials.into_inner()).await {
+  let translated =
+    match libs::translate_text(&credentials.literal, &credentials.language, None).await {
+      Ok(translated) => translated,
+      Err(_) => {
+        return api_error::<Word, WordsMessage>(
+          StatusCode::BAD_REQUEST,
+          WordsMessage::WordCreateFailed,
+        );
+      },
+    };
+
+  let mut dto = credentials.into_inner();
+  dto.translated = translated;
+
+  let word = match WordsService::create(&data, dto).await {
     Ok(word) => word,
     Err(e) => return api_error::<Word, WordsMessage>(StatusCode::BAD_REQUEST, e),
   };

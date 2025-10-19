@@ -13,8 +13,10 @@ pub struct WordsCreateDto {
     message = "literal must be between 1 and 255 chars"
   ))]
   pub literal: String,
-
   pub user_id: Uuid,
+  pub language: String,
+  #[serde(skip_deserializing, skip_serializing)]
+  pub translated: String,
 }
 
 #[derive(Debug, Deserialize, Validate)]
@@ -35,4 +37,7 @@ pub struct WordsUpdateDto {
   ))]
   pub literal: Option<String>,
   pub word_id: Option<Uuid>,
+  pub language: Option<String>,
+  #[serde(skip_deserializing, skip_serializing)]
+  pub translated: Option<String>,
 }

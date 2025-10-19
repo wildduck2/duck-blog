@@ -104,15 +104,47 @@ async function seed() {
     // Seed Words
     console.log('🗣 Seeding words...')
     const wordsData = [
-      { category: 'cloud', literal: 'aws', user_id: userMap['johndoe'] },
-      { category: 'cloud', literal: 'azure', user_id: userMap['johndoe'] },
-      { category: 'cloud', literal: 'gcp', user_id: userMap['johndoe'] },
-      { category: 'framework', literal: 'react', user_id: userMap['janesmith'] },
-      { category: 'framework', literal: 'vue', user_id: userMap['janesmith'] },
-      { category: 'framework', literal: 'svelte', user_id: userMap['janesmith'] },
-      { category: 'tool', literal: 'docker', user_id: userMap['bobjohnson'] },
-      { category: 'tool', literal: 'kubernetes', user_id: userMap['bobjohnson'] },
-      { category: 'tool', literal: 'terraform', user_id: userMap['bobjohnson'] },
+      {
+        category: 'cloud',
+        literal: 'aws',
+        translated: 'أمازون ويب سيرفيسز',
+        language: 'ar',
+        user_id: userMap['johndoe'],
+      },
+      {
+        category: 'cloud',
+        literal: 'azure',
+        translated: 'مايكروسوفت أزور',
+        language: 'ar',
+        user_id: userMap['johndoe'],
+      },
+      {
+        category: 'cloud',
+        literal: 'gcp',
+        translated: 'منصة جوجل السحابية',
+        language: 'ar',
+        user_id: userMap['johndoe'],
+      },
+
+      { category: 'framework', literal: 'react', translated: 'ريأكت', language: 'ar', user_id: userMap['janesmith'] },
+      { category: 'framework', literal: 'vue', translated: 'فيو', language: 'ar', user_id: userMap['janesmith'] },
+      { category: 'framework', literal: 'svelte', translated: 'سفيلت', language: 'ar', user_id: userMap['janesmith'] },
+
+      { category: 'tool', literal: 'docker', translated: 'دوكر', language: 'ar', user_id: userMap['bobjohnson'] },
+      {
+        category: 'tool',
+        literal: 'kubernetes',
+        translated: 'كوبرنتس',
+        language: 'ar',
+        user_id: userMap['bobjohnson'],
+      },
+      {
+        category: 'tool',
+        literal: 'terraform',
+        translated: 'تيرافورم',
+        language: 'ar',
+        user_id: userMap['bobjohnson'],
+      },
     ]
 
     const insertedWords = await db.insert(words).values(wordsData).returning()

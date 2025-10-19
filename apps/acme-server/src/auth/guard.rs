@@ -1,3 +1,5 @@
+use std::any::Any;
+
 use actix_session::{Session, SessionExt};
 use actix_web::{
   body::MessageBody,
@@ -15,7 +17,8 @@ pub async fn auth_middleware(
   // session: Session,
 ) -> Result<ServiceResponse<impl MessageBody>, Error> {
   let session = req.get_session();
-  println!("{:?}", session.entries());
+  println!("Session entries: {:?}", session.entries());
+  println!("Cookies: {:?}", req.headers().get("cookie"));
 
   // Check if user is logged in
   if session.get::<String>("user_id")?.is_some() {

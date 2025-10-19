@@ -36,13 +36,15 @@ impl WordsService {
   ) -> Result<Word, WordsMessage> {
     let word = sqlx::query_as::<_, Word>(
       r#"
-        INSERT INTO words (category, literal, user_id)
-        VALUES ($1, $2, $3)
+        INSERT INTO words (category, literal, language, translated, user_id)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING * 
       "#,
     )
     .bind(&credentials.category)
     .bind(&credentials.literal)
+    .bind(&credentials.language)
+    .bind(&credentials.translated)
     .bind(&credentials.user_id)
     .fetch_one(&data.db)
     .await
@@ -61,7 +63,12 @@ impl WordsService {
     let mut fields_updated = Vec::<UpdatedField<'a>>::new();
     let mut qb: QueryBuilder<Postgres> = QueryBuilder::new("UPDATE words SET ");
 
-    let fields = vec![("category", credentials.category)];
+    let fields = vec![
+      ("category", credentials.category),
+      ("literal", credentials.literal),
+      ("language", credentials.language),
+      ("translated", credentials.translated),
+    ];
 
     let mut first = true;
 

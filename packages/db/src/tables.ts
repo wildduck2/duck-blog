@@ -72,10 +72,12 @@ export const otpCodes = pgTable(
 export const words = pgTable(
   'words',
   {
-    category: varchar('category', { length: 255 }).notNull(),
+    category: varchar('category', { length: 255 }),
     created_at: timestamp('created_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
     id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+    language: varchar('language', { length: 255 }).notNull(),
     literal: varchar('literal', { length: 255 }).notNull(),
+    translated: varchar('translated', { length: 255 }),
     updated_at: timestamp('updated_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
     user_id: uuid('user_id')
       .notNull()

@@ -15,6 +15,13 @@
       "when": 1760725935780,
       "tag": "0001_calm_anita_blake",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1760913075125,
+      "tag": "0002_dry_leech",
+      "breakpoints": true
     }
   ]
 }

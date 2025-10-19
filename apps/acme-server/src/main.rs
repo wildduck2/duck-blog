@@ -67,9 +67,11 @@ async fn main() -> std::io::Result<()> {
       .wrap(
         SessionMiddleware::builder(redis_client.clone(), secret_key.clone())
           .cookie_name("acme-session".to_string())
-          // .cookie_http_only(false)
+          .cookie_domain(Some("localhost".to_string()))
+          .cookie_secure(false) // 👈 required for localhost without HTTPS
           .session_lifecycle(PersistentSession::default().session_ttl(Duration::days(7)))
           .build(),
+        // .cookie_http_only(false)
       )
       .wrap(IdentityMiddleware::default())
       // Add the logger middleware to the service
@@ -86,7 +88,7 @@ async fn main() -> std::io::Result<()> {
           .configure(words::config),
       )
   })
-  .bind(("localhost", address))?
+  .bind(("0.0.0.0", address))?
   .run()
   .await
 }
