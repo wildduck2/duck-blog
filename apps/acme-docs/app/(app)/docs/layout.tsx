@@ -1,5 +1,5 @@
 import { docsConfig } from '~/config/docs'
-import '@acme/tailwind-config/mdx.css'
+// import '@acme/tailwind-config/mdx.css'
 import { DocsSidebarNav } from '~/components/docs'
 
 interface DocsLayoutProps {

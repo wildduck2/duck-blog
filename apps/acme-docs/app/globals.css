@@ -1,11 +1,6 @@
 @import "tailwindcss";
 
 @source "../node_modules/@acme/ui/src/";
-@source "../node_modules/@gentleduck/registry-blocks-duckui/src/";
-@source "../node_modules/@gentleduck/registry-examples-duckui/src/";
-@source "../node_modules/@gentleduck/lazy/src/";
-@source "../../../packages/_oldstuff_refactor/ui/";
-@source "../node_modules/@gentleduck/motion/src/";
 
 @import "../node_modules/@acme/tailwind-config/base.css";
 @import "../node_modules/@acme/tailwind-config/mdx.css";
