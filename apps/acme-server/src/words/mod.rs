@@ -47,6 +47,8 @@ async fn word_create(
   data: web::Data<AppState>,
   credentials: web::Json<WordsCreateDto>,
 ) -> impl Responder {
+  println!("from create");
+  // println!("\n\ncredentials: {:?}\n\n", credentials);
   let translated =
     match libs::translate_text(&credentials.literal, &credentials.language, None).await {
       Ok(translated) => translated,

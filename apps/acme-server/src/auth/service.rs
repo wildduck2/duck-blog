@@ -29,7 +29,7 @@ impl AuthService {
       Ok(user) => user,
       Err(e) => {
         println!("{:?}", e);
-        return Err(AuthMessage::AuthUserNotFound.into());
+        return Err(AuthMessage::AuthUserNotFound);
       },
     };
 

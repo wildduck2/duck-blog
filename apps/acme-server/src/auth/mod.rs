@@ -13,7 +13,7 @@ mod dto;
 pub mod guard;
 mod service;
 
-pub fn config(cfg: &mut web::ServiceConfig) -> () {
+pub fn config(cfg: &mut web::ServiceConfig) {
   cfg.service(web::scope("/auth").service(singin).service(signout));
 }
 
@@ -30,7 +30,7 @@ async fn singin(
 
   session
     .insert("user_id", user.id.to_string())
-    .expect(&AuthMessage::AuthInsertUserIdSessionFailed.to_string());
+    .unwrap_or_else(|_| panic!("{}", AuthMessage::AuthInsertUserIdSessionFailed.to_string()));
 
   api_success::<User, AuthMessage>(StatusCode::OK, user, AuthMessage::AuthSigninSuccess)
 }

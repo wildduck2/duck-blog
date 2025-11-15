@@ -21,7 +21,7 @@ impl OtpCodeService {
       "#,
     )
     .bind(&code)
-    .bind(&user_id)
+    .bind(user_id)
     .fetch_one(&data.db)
     .await
     .map_err(|e| {
